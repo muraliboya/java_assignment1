@@ -1,0 +1,94 @@
+// Java assignment 1
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class CarBillingSystem {
+    private static final Map<String, Integer> carPrices = new HashMap<>();
+
+    static {
+        carPrices.put("Polo Trendline", 870000);
+        carPrices.put("Polo Highline", 1009000);
+        carPrices.put("Virtus Trendline", 1105000);
+        carPrices.put("Virtus Highline", 1308000);
+        carPrices.put("Taigun Trendline", 1489000);
+        carPrices.put("Taigun Highline", 1542000);
+        carPrices.put("Taigun Topline", 1771000);
+    }
+
+    private String carModel;
+    private boolean needInsurance;
+    private boolean needAccessories;
+    private double dealerDiscount;
+
+    public CarBillingSystem(String carModel, boolean needInsurance, boolean needAccessories, double dealerDiscount) {
+        this.carModel = carModel;
+        this.needInsurance = needInsurance;
+        this.needAccessories = needAccessories;
+        this.dealerDiscount = dealerDiscount;
+    }
+
+    public double calculateTotalCost() {
+        double carPrice = carPrices.get(carModel);
+        double totalCost = carPrice + 113990 + 11000;
+
+        if (needInsurance) {
+            totalCost += 47300;
+        }
+        if (needAccessories) {
+            totalCost += 15000;
+        }
+
+        if (needInsurance || needAccessories) {
+            if (dealerDiscount <= 30000) {
+                totalCost -= dealerDiscount;
+            } else {
+                dealerDiscount = 30000; // Apply maximum discount of 30,000
+                totalCost -= dealerDiscount;
+                System.out.println("Error: Maximum discount allowed is 30,000. Applied maximum discount.");
+            }
+        } else if (dealerDiscount != 0) {
+            System.out.println("Error: Please select at least one additional feature to apply a discount");
+            return -1; // or throw an exception
+        }
+
+        return totalCost;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Select car model:");
+        String carModel = scanner.nextLine();
+
+        System.out.println("Do you need Insurance? (yes/no)");
+        boolean needInsurance = scanner.nextLine().equalsIgnoreCase("yes");
+
+        System.out.println("Do you need Additional Accessories? (yes/no)");
+        boolean needAccessories = scanner.nextLine().equalsIgnoreCase("yes");
+
+        System.out.println("Dealer discount (in percentage or rupees):");
+        double dealerDiscount = scanner.nextDouble();
+
+        CarBillingSystem billingSystem = new CarBillingSystem(carModel, needInsurance, needAccessories, dealerDiscount);
+        double totalCost = billingSystem.calculateTotalCost();
+
+        if (totalCost >= 0) {
+            DecimalFormat decimalFormat = new DecimalFormat("#,##,##0.00");
+            String formattedTotalCost = decimalFormat.format(totalCost);
+            String formattedDealerDiscount = decimalFormat.format(dealerDiscount);
+            String formattedCarPrice = decimalFormat.format(carPrices.get(carModel));
+            String formattedRTO = decimalFormat.format(113990);
+            String formattedInsurance = decimalFormat.format(needInsurance ? 47300 : 0);
+            String formattedTCS = decimalFormat.format(11000);
+            String formattedAccessories = decimalFormat.format(needAccessories ? 15000 : 0);
+
+            System.out.println("Output:\nTotal cost " + formattedTotalCost + " (" + carModel + " " +
+                    formattedCarPrice + " + " + formattedRTO + "(RTO) + " + formattedInsurance + "(Insurance) + " +
+                    formattedTCS + "(TCS) + " + formattedAccessories + "(Additional Accessories) - " +
+                    formattedDealerDiscount + "(Dealer discount))");
+        }
+    }
+}
